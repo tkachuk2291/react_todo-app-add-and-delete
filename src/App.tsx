@@ -27,12 +27,39 @@ export const App: React.FC = () => {
   const[deleteTodoError , setDeleteTodoError] = useState(false);
 
 
+  function handleError(type: string , boolean : boolean) {
+    switch (type) {
+      case 'hasTitleError':
+        setHasTitleError(boolean);
+        break;
+      case 'loadTodoError':
+        setLoadTodoError(boolean);
+        break;
+      case 'addTodoError':
+        setAddTodoError(boolean);
+        break;
+      case 'deleteTodoError':
+        setDeleteTodoError(boolean);
+        break;
+      default:
+        console.error('Unknown error type');
+    }
+  }
+
+  function handleResetError(){
+    handleError('hasTitleError' , false);
+    handleError('loadTodoError',false);
+    handleError('addTodoError',false)
+    handleError('deleteTodoError',false)
+  }
+
+
   const [status, setStatus] = useState('all');
   const errorTimerRef = useRef<number | null>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo| null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingTodoId, setLoadingTodoId] = useState<number | null>(null);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [inputRefTarget, setInputRefTarget] = useState<HTMLInputElement | null>(null);
 
 
@@ -44,7 +71,7 @@ export const App: React.FC = () => {
     getTodos()
       .then(setTodos)
       .catch(() => {
-        setLoadTodoError(true);
+        handleError('loadTodoError' , true);
         resetError();
       });
   }, []);
@@ -54,10 +81,7 @@ export const App: React.FC = () => {
       clearTimeout(errorTimerRef.current);
     }
     errorTimerRef.current = window.setTimeout(() => {
-      setHasTitleError(false);
-      setLoadTodoError(false);
-      setAddTodoError(false)
-      setDeleteTodoError(false)
+      handleResetError()
       errorTimerRef.current = null;
     }, 3000);
   };
@@ -68,11 +92,7 @@ export const App: React.FC = () => {
       clearTimeout(errorTimerRef.current);
       errorTimerRef.current = null;
     }
-
-    setHasTitleError(false);
-    setLoadTodoError(false);
-    setAddTodoError(false)
-    setDeleteTodoError(false)
+    handleResetError()
   };
 
   const getErrorMessage = () => {
@@ -98,16 +118,15 @@ export const App: React.FC = () => {
 
 
   function deleteTodo(todoId: number) {
-    setLoadingTodoId(todoId)
+    setLoadingTodoIds((prevState)=> [...prevState, todoId])
 
     return deleteTodos(todoId)
       .then(() => {
         setTodos(currentPosts => currentPosts.filter(todo => todo.id !== todoId));
         inputRefTarget?.focus();
-
       })
       .catch(() => {
-        setDeleteTodoError(true)
+        handleError('deleteTodoError' ,true)
         resetError()
         inputRefTarget?.focus();
         return
@@ -115,7 +134,15 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsLoading(false);
-        setLoadingTodoId(null)
+        setLoadingTodoIds((prevState)=> prevState.filter((todo)=> todo !== todoId ))
+      });
+  }
+
+  function deleteCompletedTodo(){
+    const filteredTodos = todos.filter(todo => todo.completed)
+    Promise.all(filteredTodos.map(todo => deleteTodo(todo.id)))
+      .catch(() => {
+        handleError('deleteTodoError' ,true)
       });
   }
 
@@ -123,9 +150,8 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
-        <TodoHeader setHasTitleError={setHasTitleError}
+        <TodoHeader handleError={handleError}
                     setTodos={setTodos}
-                    setAddTodoError={setAddTodoError}
                     resetError={resetError}
                     setTempTodo={setTempTodo}
                     setIsLoading={setIsLoading}
@@ -140,8 +166,8 @@ export const App: React.FC = () => {
         />
         {(tempTodo || todos.length  > 0 ) &&    (
           <>
-            <TodoList filteredTodos={filteredTodos}  tempTodo={tempTodo}  isLoading={isLoading}  deleteTodo={deleteTodo} loadingTodoId={loadingTodoId} />
-            <TodoFooter todos={todos} status={status} setStatus={setStatus} />
+            <TodoList filteredTodos={filteredTodos}  tempTodo={tempTodo}  isLoading={isLoading}  deleteTodo={deleteTodo} loadingTodoIds={loadingTodoIds} />
+            <TodoFooter todos={todos} status={status} setStatus={setStatus} deleteCompletedTodo={deleteCompletedTodo} />
           </>
         )}
         {/* Hide the footer if there are no todos */}

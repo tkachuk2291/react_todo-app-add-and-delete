@@ -5,18 +5,18 @@ import { TodoLoader } from '../TodoLoader/TodoLoader';
 
 export interface TodoItemProps {
   todo: Todo;
-  isLoading? : boolean
-  deleteTodo?: (todoId : number) => void
+  isLoading?: boolean;
+  deleteTodo?: (todoId: number) => void;
 }
 
-export const TodoItem: React.FC<TodoItemProps> = ({ todo, isLoading , deleteTodo}) => {
-  console.log(isLoading, 'ЧТО ПРИХОДИТ ИТЕМС')
+export const TodoItem: React.FC<TodoItemProps> = ({
+  todo,
+  isLoading,
+  deleteTodo,
+}) => {
   return (
-
     <div data-cy="Todo" className={cls('todo', { completed: todo.completed })}>
-      {isLoading && (
-        <TodoLoader />
-      )}
+      {isLoading && <TodoLoader />}
 
       <label className="todo__status-label">
         <input
@@ -33,10 +33,11 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, isLoading , deleteTodo
       </span>
 
       {/* Remove button appears only on hover */}
-      <button type="button"
-              className="todo__remove"
-              data-cy="TodoDelete"
-              onClick={() => deleteTodo?.(todo.id)}
+      <button
+        type="button"
+        className="todo__remove"
+        data-cy="TodoDelete"
+        onClick={() => deleteTodo?.(todo.id)}
       >
         ×
       </button>
@@ -49,4 +50,3 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, isLoading , deleteTodo
     </div>
   );
 };
-

@@ -126,6 +126,10 @@ export const App: React.FC = () => {
                     setTempTodo={setTempTodo}
                     setIsLoading={setIsLoading}
                     isLoading={isLoading}
+                    hasTitleError={hasTitleError}
+                    loadTodoError={loadTodoError}
+                    addTodoError={addTodoError}
+                    deleteTodoError={deleteTodoError}
         />
         {(tempTodo || todos.length  > 0 ) &&    (
           <>

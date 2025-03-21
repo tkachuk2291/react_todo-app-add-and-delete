@@ -11,12 +11,15 @@ export interface TodoHeaderProps {
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   setIsLoading : React.Dispatch<React.SetStateAction<boolean>>
   isLoading : boolean
-
+  hasTitleError : boolean
+  loadTodoError : boolean
+  addTodoError : boolean
+  deleteTodoError: boolean
 }
 
 
 
-export const TodoHeader: React.FC<TodoHeaderProps>= ({setHasTitleError , setTodos , setAddTodoError , resetError , setTempTodo , setIsLoading , isLoading}) =>{
+export const TodoHeader: React.FC<TodoHeaderProps>= ({setHasTitleError , setTodos , setAddTodoError , resetError , setTempTodo , setIsLoading , isLoading , hasTitleError , loadTodoError , addTodoError , deleteTodoError}) =>{
   const [title ,setTitle ] = useState('')
 
 
@@ -39,7 +42,7 @@ export const TodoHeader: React.FC<TodoHeaderProps>= ({setHasTitleError , setTodo
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     inputRef.current?.focus();
-  }, [title]);
+  }, [title, hasTitleError , loadTodoError , addTodoError , deleteTodoError]);
 
   const addPost = () => {
     const formattedTitle = title.trim();
@@ -70,6 +73,7 @@ export const TodoHeader: React.FC<TodoHeaderProps>= ({setHasTitleError , setTodo
       .catch((error) => {
         setAddTodoError(true)
         resetError()
+        inputRef.current?.focus();
         throw error;
       }).finally(()=>{
         setIsLoading(false)

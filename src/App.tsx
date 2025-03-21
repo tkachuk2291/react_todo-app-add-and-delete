@@ -33,6 +33,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo| null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingTodoId, setLoadingTodoId] = useState<number | null>(null);
+  const [inputRefTarget, setInputRefTarget] = useState<HTMLInputElement | null>(null);
 
 
   if (!USER_ID) {
@@ -102,10 +103,13 @@ export const App: React.FC = () => {
     return deleteTodos(todoId)
       .then(() => {
         setTodos(currentPosts => currentPosts.filter(todo => todo.id !== todoId));
+        inputRefTarget?.focus();
+
       })
       .catch(() => {
         setDeleteTodoError(true)
         resetError()
+        inputRefTarget?.focus();
         return
 
       })
@@ -130,6 +134,9 @@ export const App: React.FC = () => {
                     loadTodoError={loadTodoError}
                     addTodoError={addTodoError}
                     deleteTodoError={deleteTodoError}
+                    hideErrors={hideErrors}
+                    setInputRefTarget={setInputRefTarget}
+                    inputRefTarget={inputRefTarget}
         />
         {(tempTodo || todos.length  > 0 ) &&    (
           <>

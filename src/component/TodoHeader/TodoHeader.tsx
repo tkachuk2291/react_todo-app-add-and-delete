@@ -15,11 +15,15 @@ export interface TodoHeaderProps {
   loadTodoError : boolean
   addTodoError : boolean
   deleteTodoError: boolean
+  hideErrors : () => void
+  setInputRefTarget : React.Dispatch<React.SetStateAction<HTMLInputElement | null>>;
+  inputRefTarget : HTMLInputElement | null
+
 }
 
 
 
-export const TodoHeader: React.FC<TodoHeaderProps>= ({setHasTitleError , setTodos , setAddTodoError , resetError , setTempTodo , setIsLoading , isLoading , hasTitleError , loadTodoError , addTodoError , deleteTodoError}) =>{
+export const TodoHeader: React.FC<TodoHeaderProps>= ({setHasTitleError , setTodos , setAddTodoError , resetError , setTempTodo , setIsLoading , isLoading , hasTitleError , loadTodoError , addTodoError , deleteTodoError , hideErrors , setInputRefTarget , inputRefTarget}) =>{
   const [title ,setTitle ] = useState('')
 
 
@@ -31,6 +35,8 @@ export const TodoHeader: React.FC<TodoHeaderProps>= ({setHasTitleError , setTodo
       resetError()
       return;
     }
+    hideErrors()
+
     addPost()
 
   };
@@ -41,7 +47,15 @@ export const TodoHeader: React.FC<TodoHeaderProps>= ({setHasTitleError , setTodo
 
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    inputRef.current?.focus();
+    if (inputRef.current) {
+      setInputRefTarget(inputRef.current);
+      inputRef.current.focus();
+    }
+  }, []);
+
+
+  useEffect(() => {
+    inputRefTarget?.focus();
   }, [title, hasTitleError , loadTodoError , addTodoError , deleteTodoError]);
 
   const addPost = () => {
@@ -68,12 +82,12 @@ export const TodoHeader: React.FC<TodoHeaderProps>= ({setHasTitleError , setTodo
       .then((createdTodo) => {
         setTodos((currentTodos) => [...currentTodos, createdTodo]);
         setTitle('');
-        inputRef.current?.focus();
+        inputRefTarget?.focus();
       })
       .catch((error) => {
         setAddTodoError(true)
         resetError()
-        inputRef.current?.focus();
+        inputRefTarget?.focus();
         throw error;
       }).finally(()=>{
         setIsLoading(false)

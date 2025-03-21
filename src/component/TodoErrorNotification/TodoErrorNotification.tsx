@@ -5,13 +5,11 @@ export interface TodoErrorNotificationProps {
   getErrorMessage: () => string
   isErrorHidden: () => boolean
   hideErrors:  () => void
-
 }
 
 
 
 export const TodoErrorNotification: React.FC<TodoErrorNotificationProps>= ({getErrorMessage  , isErrorHidden , hideErrors }) => {
-
 
   return (
     <div
